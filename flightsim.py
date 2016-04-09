@@ -123,6 +123,7 @@ def draw():
    
    GL.glTranslatef(position[0], position[1], position[2])
    
+   GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, [1, 1, 1, 0])
    
    GL.glScalef(1000, 100, 1000)
    GL.glEnableClientState(GL.GL_VERTEX_ARRAY);
@@ -181,7 +182,7 @@ print len(norms)
 
 def update():
     t0 = time.time()
-    go = np.array((orientation** -1) * np.matrix([[0], [0], [.05]])).flatten()
+    go = np.array((orientation** -1) * np.matrix([[0], [0], [.01]])).flatten()
     
     position[0] += go[0] 
     position[1] += go[1]
@@ -204,10 +205,10 @@ def stdinControl():
                 matr *= np.matrix([[-1, 0, 0],
                                    [0,  1, 0],
                                    [0,  0, -1]])
-                                   
+                                  
                 print np.linalg.det(matr)
                 if abs(np.linalg.det(matr) - 1)  <.01:
-                    orientation = (scipy.linalg.sqrtm(scipy.linalg.sqrtm(matr))) * orientation
+                    orientation = scipy.linalg.fractional_matrix_power(matr, -.05) * orientation
                 print matr
                 
         except Exception as e:
