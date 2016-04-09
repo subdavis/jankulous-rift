@@ -6,7 +6,10 @@
 #include "opencv2/core/core.hpp"
 // #include <opencv/highgui.h>
 #include <cv.h>
+#include <GL/glew.h>
 #include <GL/glut.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 #include <vector>
 
 
@@ -14,6 +17,8 @@
 
 using namespace cv;
 using namespace std;
+
+void transpose(float *src, float *dst, const int N, const int M);
 
 //http://opencv-srf.blogspot.com/2010/09/object-detection-using-color-seperation.html
 
@@ -44,9 +49,9 @@ int pose(){
   std::vector<CvPoint3D32f> modelPoints;
   modelPoints.push_back(cvPoint3D32f(0.0f, 0.0f, 0.0f));
   modelPoints.push_back(cvPoint3D32f(0.0f, 550.0f, 0.0f));
-  modelPoints.push_back(cvPoint3D32f(-500.0f, 0.0f, 0.0f)); //red
-  modelPoints.push_back(cvPoint3D32f(500.0f, 0.0f, 0.0f)); //green
-  modelPoints.push_back(cvPoint3D32f(0.0f, 0.0f, -800.0f));
+  modelPoints.push_back(cvPoint3D32f(500.0f, 0.0f, 0.0f)); //red
+  modelPoints.push_back(cvPoint3D32f(-500.0f, 0.0f, 0.0f)); //green
+  modelPoints.push_back(cvPoint3D32f(0.0f, 0.0f, 800.0f));
   CvPOSITObject *positObject = cvCreatePOSITObject( &modelPoints[0], static_cast<int>(modelPoints.size()) );
   
   //Shoudl be with respect to 0,0 in screen coordinates in the middle
@@ -63,9 +68,6 @@ int pose(){
   CvTermCriteria criteria = cvTermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 100, 1.0e-4f);
   cvPOSIT( positObject, &projectedPoints[0], FOCAL_LENGTH, criteria, rotation_matrix, translation_vector );
   // createOpenGLMatrixFrom( rotation_matrix, translation_vector);
-
-  //multiply by transpose.
-  // mat3 out = rotation_matrix * 
 
   std::cout << rotation_matrix[0] << " " << rotation_matrix[1] << " " << rotation_matrix[2] << " "
       << rotation_matrix[3] << " " << rotation_matrix[4] << " " << rotation_matrix[5]<< " "
@@ -187,9 +189,9 @@ int main( int argc, char** argv ){
 
   // lowH, highH, lowS, highS, lowV, HighV
   int red_range[] = {170, 179, 150, 255, 60, 255}; 
-  int green_range[] = {69, 98, 120, 255, 62, 180};
+  int green_range[] = {70, 98, 150, 255, 62, 180};
   int blue_range[] = {118, 138, 124, 255, 81, 228};
-  int orange_range[] = {0, 23, 117, 255, 161, 255};
+  int orange_range[] = {0, 23, 156, 255, 194, 255};
 
   //Capture a temporary image from the camera
   Mat imgTmp;
@@ -209,4 +211,12 @@ int main( int argc, char** argv ){
   }
   
   return 0;
+}
+
+void transpose(float *src, float *dst, const int N, const int M) {
+    for(int n = 0; n<N*M; n++) {
+        int i = n/N;
+        int j = n%N;
+        dst[n] = src[M*j + i];
+    }
 }
