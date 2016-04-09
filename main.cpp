@@ -39,7 +39,7 @@ void load_mesh(std::string fileName);
 void init_timer();
 void start_timing();
 float stop_timing();
-void transformSetup();
+void transformSetup(int x, int y);
 void init(std::string path);
 void drawRoom();
 void draw();
@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowPosition(50, 100);
-    glutInitWindowSize(512, 512);
+    glutInitWindowSize(1500, 800);
     glutCreateWindow("Bunny");
         
     if (argc == 3){
@@ -75,6 +75,7 @@ int main(int argc, char **argv) {
     }
     
     glutDisplayFunc(draw);
+    glutPassiveMotionFunc(transformSetup);
     init_timer();
     glutMainLoop();
     return 0;
@@ -169,7 +170,7 @@ void init(std::string path) {
      * 
      */ 
 
-    transformSetup();
+    transformSetup(0, 0);
     
     /*
      * Set up light parameters.
@@ -208,17 +209,22 @@ void init(std::string path) {
     
 }
 
-void transformSetup() {
+void transformSetup(int x, int y) {
+    float centerFrustumX = -((x - 750) / 750.) * .2;
+    float centerFrustumY = ((y - 400) / 400.) * .1;
+    
+    float scale = -5;
     
     /*
      * Set up Model Transform
      */
+     std::cout << x << " " << y << " " << std::endl;
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(0.0,0.0,0.0,0.0,0.0,-1.0,0.0,1.0,0.0);
+    gluLookAt(-scale * centerFrustumX,-scale * centerFrustumY,0.0,0.0,0.0,-1.0,0.0,1.0,0.0);
     glTranslatef(0.1,-1.0,-1.5);
-    glScalef(10.0,10.0,10.0);
+    glScalef(5.0,5.0,5.0);
 
     /*
      * Set up Projection Transform
@@ -226,8 +232,8 @@ void transformSetup() {
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glFrustum(-.1, .1, -.1, .1, .1, 1000);
-    glViewport(0, 0, 512, 512);
+    glFrustum(-.2 + centerFrustumX, .2 + centerFrustumX, -.1 + centerFrustumY, .1 + centerFrustumY, .2, 1000);
+    glViewport(0, 0, 1500, 800);
 }
 
 void drawRoom(){
