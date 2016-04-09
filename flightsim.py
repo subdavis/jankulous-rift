@@ -192,6 +192,14 @@ def update():
     draw()
     t1 = time.time()
     GLUT.glutSetWindowTitle(str(1 / (t1 - t0)))
+    
+    
+def stdinControl():
+    while True:
+        print "recieved " + raw_input()
+        
+t = Thread(target = stdinControl)
+t.start()
 GLUT.glutIdleFunc(update)
 GLUT.glutMainLoop()
 
