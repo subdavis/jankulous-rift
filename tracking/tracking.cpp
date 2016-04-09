@@ -44,19 +44,19 @@ int pose(){
   std::vector<CvPoint3D32f> modelPoints;
   modelPoints.push_back(cvPoint3D32f(0.0f, 0.0f, 0.0f));
   modelPoints.push_back(cvPoint3D32f(0.0f, 550.0f, 0.0f));
-  modelPoints.push_back(cvPoint3D32f(500.0f, 0.0f, 0.0f)); //red
-  modelPoints.push_back(cvPoint3D32f(-500.0f, 0.0f, 0.0f)); //green
+  modelPoints.push_back(cvPoint3D32f(-500.0f, 0.0f, 0.0f)); //red
+  modelPoints.push_back(cvPoint3D32f(500.0f, 0.0f, 0.0f)); //green
   modelPoints.push_back(cvPoint3D32f(0.0f, 0.0f, 800.0f));
   CvPOSITObject *positObject = cvCreatePOSITObject( &modelPoints[0], static_cast<int>(modelPoints.size()) );
   
   //Shoudl be with respect to 0,0 in screen coordinates in the middle
   std::vector<CvPoint2D32f> projectedPoints;
   int halfx = 310, halfy = 240;
-  projectedPoints.push_back(cvPoint2D32f(midp->x - halfx, midp->y - halfy));
-  projectedPoints.push_back(cvPoint2D32f(orange->x - halfx, orange->y - halfy));
-  projectedPoints.push_back(cvPoint2D32f(red->x - halfx, red->y - halfy));
-  projectedPoints.push_back(cvPoint2D32f(green->x - halfx, green->y - halfy));
-  projectedPoints.push_back(cvPoint2D32f(blue->x - halfx, blue->y - halfy));
+  projectedPoints.push_back(cvPoint2D32f(halfx - midp->x, halfy - midp->y));
+  projectedPoints.push_back(cvPoint2D32f(halfx - orange->x, halfy - orange->y));
+  projectedPoints.push_back(cvPoint2D32f(halfx - red->x, halfy - red->y));
+  projectedPoints.push_back(cvPoint2D32f(halfx - green->x, halfy - green->y));
+  projectedPoints.push_back(cvPoint2D32f(halfx - blue->x, halfy - blue->y));
 
   CvMatr32f rotation_matrix = new float[9];
   CvVect32f translation_vector = new float[3];
@@ -65,8 +65,8 @@ int pose(){
   // createOpenGLMatrixFrom( rotation_matrix, translation_vector);
 
   std::cout << rotation_matrix[0] << " " << rotation_matrix[1] << " " << rotation_matrix[2] << std::endl;
-  std::cout << rotation_matrix[4] << " " << rotation_matrix[5] << " " << rotation_matrix[6] << std::endl;
-  std::cout << rotation_matrix[8] << " " << rotation_matrix[9] << " " << rotation_matrix[10] << std::endl;
+  std::cout << rotation_matrix[3] << " " << rotation_matrix[4] << " " << rotation_matrix[5]<< std::endl;
+  std::cout << rotation_matrix[6] << " " << rotation_matrix[7] << " " << rotation_matrix[8] << std::endl;
   // std::cout << red->x << " " << red->y << std::endl;
   return 0;
 }
