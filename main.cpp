@@ -360,7 +360,7 @@ void draw() {
     //Recompute the transform
     trackColor(red, imgLines, cap, red_range);
     trackColor(green, imgLines, cap, green_range);
-    transformSetup(midp->x, midp->y);
+    transformSetup(midp->x * 2, midp->y * 2);
 
     //Do the draw
     drawRoom();
