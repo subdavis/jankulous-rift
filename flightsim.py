@@ -11,6 +11,7 @@ import OpenGL.arrays as arrays
 import sys
 
 import numpy as np
+import scipy.linalg
 
 import operator
 import ctypes
@@ -122,6 +123,7 @@ def draw():
    
    GL.glTranslatef(position[0], position[1], position[2])
    
+   GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, [1, 1, 1, 0])
    
    GL.glScalef(1000, 100, 1000)
    GL.glEnableClientState(GL.GL_VERTEX_ARRAY);
@@ -158,23 +160,19 @@ def draw():
 def mousemoved(x, y):
     
     global orientation
-    print orientation
     if x != 500 or y != 500:
        xrot = (x-500.) / 1000
        yrot = (y - 500.) / 1000
-       print "orientation: \n:"
-       print orientation
-       print xrot, yrot
+      
        rotator = np.matrix([[np.cos(xrot), np.sin(xrot), 0],
                                  [-np.sin(xrot),np.cos(xrot), 0],
                                  [0,           0,             1]])
        rotator *= np.matrix([[1, 0, 0],
                             [0,np.cos(yrot), np.sin(yrot)],
                             [0,-np.sin(yrot),np.cos(yrot)]])
-       print rotator
+       
        orientation = rotator * orientation
-       print "orientation: \n:"
-       print orientation
+       
        GLUT.glutWarpPointer(500, 500)
 
                             
@@ -184,14 +182,40 @@ print len(norms)
 
 def update():
     t0 = time.time()
-    go = np.array((orientation** -1) * np.matrix([[0], [0], [.05]])).flatten()
-    print go
+    go = np.array((orientation** -1) * np.matrix([[0], [0], [.01]])).flatten()
+    
     position[0] += go[0] 
     position[1] += go[1]
     position[2] += go[2]
     draw()
     t1 = time.time()
     GLUT.glutSetWindowTitle(str(1 / (t1 - t0)))
+    
+    
+def stdinControl():
+    global orientation
+    while True:
+        try:
+            inp = raw_input()
+            print "recieved " + inp
+            if all(map(float, inp.split())):
+                array = np.array(map(float, inp.split()))
+                array = array.reshape(3, 3).transpose()
+                matr = np.matrix(array)
+                matr *= np.matrix([[-1, 0, 0],
+                                   [0,  1, 0],
+                                   [0,  0, -1]])
+                                  
+                print np.linalg.det(matr)
+                if abs(np.linalg.det(matr) - 1)  <.01:
+                    orientation = scipy.linalg.fractional_matrix_power(matr, -.05) * orientation
+                print matr
+                
+        except Exception as e:
+            print "error reading: ", e
+        
+t = Thread(target = stdinControl)
+t.start()
 GLUT.glutIdleFunc(update)
 GLUT.glutMainLoop()
 
