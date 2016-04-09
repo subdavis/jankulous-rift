@@ -40,7 +40,7 @@ v2* xz_midpoint;// the left-right distance of purple from midpoint
 v2* xy_midpoint;// hight diff of red from midpoint.
 
 int pose(){
-  float wandSize = 10;
+  // float wandSize s= 10;
   std::vector<CvPoint3D32f> modelPoints;
   modelPoints.push_back(cvPoint3D32f(0.0f, 0.0f, 0.0f));
   modelPoints.push_back(cvPoint3D32f(0.0f, 550.0f, 0.0f));
@@ -64,9 +64,9 @@ int pose(){
   cvPOSIT( positObject, &projectedPoints[0], FOCAL_LENGTH, criteria, rotation_matrix, translation_vector );
   // createOpenGLMatrixFrom( rotation_matrix, translation_vector);
 
-  std::cout << rotation_matrix[0] << " " << rotation_matrix[1] << " " << rotation_matrix[2] << std::endl;
-  std::cout << rotation_matrix[3] << " " << rotation_matrix[4] << " " << rotation_matrix[5]<< std::endl;
-  std::cout << rotation_matrix[6] << " " << rotation_matrix[7] << " " << rotation_matrix[8] << std::endl;
+  std::cout << rotation_matrix[0] << " " << rotation_matrix[1] << " " << rotation_matrix[2] << " "
+      << rotation_matrix[3] << " " << rotation_matrix[4] << " " << rotation_matrix[5]<< " "
+      << rotation_matrix[6] << " " << rotation_matrix[7] << " " << rotation_matrix[8] << std::endl;
   // std::cout << red->x << " " << red->y << std::endl;
   return 0;
 }
