@@ -1,16 +1,12 @@
 #include <iostream>
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
+#include <math.h>
 
 using namespace cv;
 using namespace std;
 
-int midpointX = -1;
-int midpointY = -1;
-
-int midpointXl = -1;
-int midpointYl = -1;
-
+int width;
 
 struct v2{
    int x;
@@ -62,13 +58,19 @@ int trackColor(v2 *ret, Mat imgLines, VideoCapture cap, int iLowH, int iHighH, i
       int posX = dM10 / dArea;
       int posY = dM01 / dArea;
 
-     //TODO set RET values 
-     ret->x = posX;
-     ret->y = posY;     
-     midp->x = (green->x + red->x) / 2; 
-     midp->y = (green->y + red->y) / 2;
+      //TODO set RET values 
+      ret->x = posX;
+      ret->y = posY; 
 
-      if (lastmid->x >= 0 && lastmid->y >= 0 && posX >= 0 && posY >= 0){
+      if (red->x > 0  && red->y > 0 && green->x > 0 && green->y > 0){
+        midp->x = (green->x + red->x) / 2; 
+        midp->y = (green->y + red->y) / 2;
+        //set the distance between thingies.
+        //distance formula
+        width = sqrt( pow((green->y - red->y), 2) + pow((green->x - red->x), 2) );
+      }   
+
+      if (lastmid->x > 0 && lastmid->y > 0 && midp->x > 0 && midp->y > 0){
         //Draw a red line from the previous point to the current point
         line(imgLines, Point(midp->x, midp->y), Point(lastmid->x, lastmid->y), Scalar(0,0,255), 2);
       }
@@ -136,17 +138,6 @@ int trackColor(v2 *ret, Mat imgLines, VideoCapture cap, int iLowH, int iHighH, i
   int iLowVg = 26;
  int iHighVg = 180;
 
- // //  //Create trackbars in "Control" window
- // createTrackbar("LowH", "Control", &iLowRed, 179); //Hue (0 - 179)
- // createTrackbar("HighH", "Control", &iHighRed, 179);
-
- //  createTrackbar("LowS", "Control", &iLowS, 255); //Saturation (0 - 255)
- // createTrackbar("HighS", "Control", &iHighS, 255);
-
- //  createTrackbar("LowV", "Control", &iLowV, 255);//Value (0 - 255)
- // createTrackbar("HighV", "Control", &iHighV, 255);
-
- while (true){
     //Capture a temporary image from the camera
   Mat imgTmp;
   cap.read(imgTmp); 
@@ -154,9 +145,11 @@ int trackColor(v2 *ret, Mat imgLines, VideoCapture cap, int iLowH, int iHighH, i
   //Create a black image with the size as the camera output
   Mat imgLines = Mat::zeros( imgTmp.size(), CV_8UC3 );;
 
+ while (true){
+
   trackColor(red, imgLines, cap, iLowRed, iHighRed, iLowSr, iHighSr, iLowVr, iHighVr);
   trackColor(green, imgLines, cap, iLowGreen, iHighGreen, iLowSg, iHighSg, iLowVg, iHighVg);
-  
+  std::cout << width << std::endl;
   }
   
   return 0;
