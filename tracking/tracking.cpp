@@ -6,6 +6,8 @@
 using namespace cv;
 using namespace std;
 
+//http://opencv-srf.blogspot.com/2010/09/object-detection-using-color-seperation.html
+
 int width;
 
 struct v2{
@@ -104,11 +106,11 @@ int main( int argc, char** argv ){
     return -1;
   }
 
-  namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
+  // namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
 
   // lowH, highH, lowS, highS, lowV, HighV
   int red_range[] = {170, 179, 150, 255, 60, 255}; 
-  int green_range[] = {73, 108, 150, 255, 26, 180};
+  int green_range[] = {69, 98, 120, 255, 62, 180};
 
   //Capture a temporary image from the camera
   Mat imgTmp;
