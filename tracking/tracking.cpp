@@ -2,6 +2,15 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include <math.h>
+#include "opencv2/core/internal.hpp"
+#include "opencv2/core/core.hpp"
+// #include <opencv/highgui.h>
+#include <cv.h>
+#include <GL/glut.h>
+#include <vector>
+
+
+#define FOCAL_LENGTH 760.0
 
 using namespace cv;
 using namespace std;
@@ -29,6 +38,38 @@ v2 *lastmid;
 v2* yz_midpoint;// the height of purple from midpoint.
 v2* xz_midpoint;// the left-right distance of purple from midpoint
 v2* xy_midpoint;// hight diff of red from midpoint.
+
+int pose(){
+  float wandSize = 10;
+  std::vector<CvPoint3D32f> modelPoints;
+  modelPoints.push_back(cvPoint3D32f(0.0f, 0.0f, 0.0f));
+  modelPoints.push_back(cvPoint3D32f(0.0f, 550.0f, 0.0f));
+  modelPoints.push_back(cvPoint3D32f(500.0f, 0.0f, 0.0f)); //red
+  modelPoints.push_back(cvPoint3D32f(-500.0f, 0.0f, 0.0f)); //green
+  modelPoints.push_back(cvPoint3D32f(0.0f, 0.0f, 800.0f));
+  CvPOSITObject *positObject = cvCreatePOSITObject( &modelPoints[0], static_cast<int>(modelPoints.size()) );
+  
+  //Shoudl be with respect to 0,0 in screen coordinates in the middle
+  std::vector<CvPoint2D32f> projectedPoints;
+  int halfx = 310, halfy = 240;
+  projectedPoints.push_back(cvPoint2D32f(midp->x - halfx, midp->y - halfy));
+  projectedPoints.push_back(cvPoint2D32f(orange->x - halfx, orange->y - halfy));
+  projectedPoints.push_back(cvPoint2D32f(red->x - halfx, red->y - halfy));
+  projectedPoints.push_back(cvPoint2D32f(green->x - halfx, green->y - halfy));
+  projectedPoints.push_back(cvPoint2D32f(blue->x - halfx, blue->y - halfy));
+
+  CvMatr32f rotation_matrix = new float[9];
+  CvVect32f translation_vector = new float[3];
+  CvTermCriteria criteria = cvTermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 100, 1.0e-4f);
+  cvPOSIT( positObject, &projectedPoints[0], FOCAL_LENGTH, criteria, rotation_matrix, translation_vector );
+  // createOpenGLMatrixFrom( rotation_matrix, translation_vector);
+
+  std::cout << rotation_matrix[0] << " " << rotation_matrix[1] << " " << rotation_matrix[2] << std::endl;
+  std::cout << rotation_matrix[4] << " " << rotation_matrix[5] << " " << rotation_matrix[6] << std::endl;
+  std::cout << rotation_matrix[8] << " " << rotation_matrix[9] << " " << rotation_matrix[10] << std::endl;
+  // std::cout << red->x << " " << red->y << std::endl;
+  return 0;
+}
 
 int getCoords(Mat imgHSV, v2 *color, int* range){
   Mat imgThresholded;
@@ -157,6 +198,7 @@ int main( int argc, char** argv ){
   while (true){
     Mat imgLines = Mat::zeros( imgTmp.size(), CV_8UC3 );;
     trackColor(red, imgLines, cap, red_range, green_range, blue_range, orange_range);
+    pose();
     //position of midpoint will be in midp
     //distance, in pixels, between the endpoints will be in width
 
