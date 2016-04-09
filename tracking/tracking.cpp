@@ -46,7 +46,7 @@ int pose(){
   modelPoints.push_back(cvPoint3D32f(0.0f, 550.0f, 0.0f));
   modelPoints.push_back(cvPoint3D32f(-500.0f, 0.0f, 0.0f)); //red
   modelPoints.push_back(cvPoint3D32f(500.0f, 0.0f, 0.0f)); //green
-  modelPoints.push_back(cvPoint3D32f(0.0f, 0.0f, 800.0f));
+  modelPoints.push_back(cvPoint3D32f(0.0f, 0.0f, -800.0f));
   CvPOSITObject *positObject = cvCreatePOSITObject( &modelPoints[0], static_cast<int>(modelPoints.size()) );
   
   //Shoudl be with respect to 0,0 in screen coordinates in the middle
@@ -63,6 +63,9 @@ int pose(){
   CvTermCriteria criteria = cvTermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 100, 1.0e-4f);
   cvPOSIT( positObject, &projectedPoints[0], FOCAL_LENGTH, criteria, rotation_matrix, translation_vector );
   // createOpenGLMatrixFrom( rotation_matrix, translation_vector);
+
+  //multiply by transpose.
+  // mat3 out = rotation_matrix * 
 
   std::cout << rotation_matrix[0] << " " << rotation_matrix[1] << " " << rotation_matrix[2] << " "
       << rotation_matrix[3] << " " << rotation_matrix[4] << " " << rotation_matrix[5]<< " "
