@@ -213,7 +213,7 @@ void transformSetup(int x, int y) {
     float centerFrustumX = -((x - 750) / 750.) * .2;
     float centerFrustumY = ((y - 400) / 400.) * .1;
     
-    float scale = -5;
+    float scale = 4;
     
     /*
      * Set up Model Transform
@@ -222,8 +222,8 @@ void transformSetup(int x, int y) {
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(-scale * centerFrustumX,-scale * centerFrustumY,0.0,0.0,0.0,-1.0,0.0,1.0,0.0);
-    glTranslatef(0.1,-1.0,-1.5);
+    gluLookAt(-scale * centerFrustumX,-scale * centerFrustumY,0.0,-scale * centerFrustumX,-scale * centerFrustumY,-1.0,0.0,1.0,0.0);
+    glTranslatef(0.1,-.5,-1.5);
     glScalef(5.0,5.0,5.0);
 
     /*
@@ -232,7 +232,7 @@ void transformSetup(int x, int y) {
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glFrustum(-.2 + centerFrustumX, .2 + centerFrustumX, -.1 + centerFrustumY, .1 + centerFrustumY, .2, 1000);
+    glFrustum(-.2 + centerFrustumX, .2 + centerFrustumX, -.1 + centerFrustumY, .1 + centerFrustumY, .4, 1000);
     glViewport(0, 0, 1500, 800);
 }
 
@@ -283,6 +283,7 @@ void drawRoom(){
 
     else {
         glDrawElements(GL_TRIANGLES , num_verts , GL_UNSIGNED_INT , 0);
+        glutSolidCube(.1);
     }
 }
 
