@@ -33,7 +33,7 @@ orientation = np.matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype = np.float)
 def interpretLine(string):
     return map(float, string.split()[1:])
     
-with open("/home/hastings/cpp/jankulous-rift/terrainmesh/terrain.obj", "r") as file:
+with open("terrainmesh/terrain.obj", "r") as file:
     for _ in range(7):
         file.readline()
 
