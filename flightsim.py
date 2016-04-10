@@ -19,6 +19,8 @@ import ctypes
 import time
 print "type y to use VBO, n to use immediate rendering"
 
+from PIL import Image
+
 def mulmat3(m):
    GL.glMultMatrixf([m[0, 0], m[1, 0], m[2, 0], 0, 
                    m[0, 1], m[1, 1], m[2, 1], 0, 
@@ -30,6 +32,28 @@ useVBO = True
 position = [0.1, -27, -1.5]
  
 orientation = np.matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype = np.float)
+
+#load skybox
+
+
+im = Image.open("skyboxsun5deg.png")
+try: 
+    ix, iy, image = im.size[0], im.size[1], im.tostring("raw", "RGBA", 0, -1) 
+except SystemError: 
+    ix, iy, image = im.size[0], im.size[1], im.tostring("raw", "RGBX", 0, -1)
+
+
+skytexID = GL.glGenTextures(1)
+
+GL.glBindTexture(GL.GL_TEXTURE_2D, skytexID) 
+GL.glPixelStorei(GL.GL_UNPACK_ALIGNMENT,1)
+
+GL.glTexImage2D( GL.GL_TEXTURE_2D, 0, 3, ix, iy, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, image)
+
+
+
+
+#load terrain
  
 def interpretLine(string):
     return map(float, string.split()[1:])
@@ -202,9 +226,9 @@ def stdinControl():
                 array = np.array(map(float, inp.split()))
                 array = array.reshape(3, 3).transpose()
                 matr = np.matrix(array)
-                matr *= np.matrix([[-1, 0, 0],
+                matr *= np.matrix([[1, 0, 0],
                                    [0,  1, 0],
-                                   [0,  0, -1]])
+                                   [0,  0, 1]])
                                   
                 print np.linalg.det(matr)
                 if abs(np.linalg.det(matr) - 1)  <.01:
