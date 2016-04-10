@@ -37,10 +37,12 @@ orientation = np.matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype = np.float)
 
 
 im = Image.open("skyboxsun5deg.png")
+print im
 try: 
     ix, iy, image = im.size[0], im.size[1], im.tostring("raw", "RGBA", 0, -1) 
 except SystemError: 
-    ix, iy, image = im.size[0], im.size[1], im.tostring("raw", "RGBX", 0, -1)
+    print "whoops"
+    ix, iy, image = im.size[0], im.size[1], im.tobytes("raw", "RGBX", 0, -1)
 
 
 skytexID = GL.glGenTextures(1)
@@ -49,8 +51,6 @@ GL.glBindTexture(GL.GL_TEXTURE_2D, skytexID)
 GL.glPixelStorei(GL.GL_UNPACK_ALIGNMENT,1)
 
 GL.glTexImage2D( GL.GL_TEXTURE_2D, 0, 3, ix, iy, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, image)
-
-
 
 
 #load terrain
@@ -147,6 +147,78 @@ def draw():
    
    GL.glTranslatef(position[0], position[1], position[2])
    
+   #draw sky
+   GL.glBindTexture(GL.GL_TEXTURE_2D, skytexID) 
+   GL.glDisable( GL.GL_LIGHTING)
+   GL.glBlendFunc (GL.GL_SRC_ALPHA, GL.GL_ONE)
+   GL.glEnable(GL.GL_TEXTURE_2D) 
+   GL.glTexParameterf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST)
+   GL.glTexParameterf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST) 
+   GL.glTexEnvf(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_DECAL)
+   
+   
+   
+   d = 1000
+   
+   GL.glPushMatrix()
+   GL.glScalef(-500, 500, 500)
+   GL.glBegin(GL.GL_QUADS)
+   GL.glTexCoord2f(0.0, 0.0)
+   GL.glVertex3f(-1.0, -1.0, 1.0)
+   GL.glTexCoord2f(1.0, 0.0)
+   GL.glVertex3f( 1.0, -1.0, 1.0)
+   GL.glTexCoord2f(1.0, 1.0)
+   GL.glVertex3f( 1.0, 1.0, 1.0)
+   GL.glTexCoord2f(0.0, 1.0)
+   GL.glVertex3f(-1.0, 1.0, 1.0)
+   GL.glTexCoord2f(1.0, 0.0)
+   GL.glVertex3f(-1.0, -1.0, -1.0)
+   GL.glTexCoord2f(1.0, 1.0)
+   GL.glVertex3f(-1.0, 1.0, -1.0)
+   GL.glTexCoord2f(0.0, 1.0)
+   GL.glVertex3f( 1.0, 1.0, -1.0)
+   GL.glTexCoord2f(0.0, 0.0)
+   GL.glVertex3f( 1.0, -1.0, -1.0)
+   GL.glTexCoord2f(0.0, 1.0)
+   GL.glVertex3f(-1.0, 1.0, -1.0)
+   GL.glTexCoord2f(0.0, 0.0)
+   GL.glVertex3f(-1.0, 1.0, 1.0)
+   GL.glTexCoord2f(1.0, 0.0)
+   GL.glVertex3f( 1.0, 1.0, 1.0)
+   GL.glTexCoord2f(1.0, 1.0)
+   GL.glVertex3f( 1.0, 1.0, -1.0)
+   GL.glTexCoord2f(1.0, 1.0)
+   GL.glVertex3f(-1.0, -1.0, -1.0)
+   GL.glTexCoord2f(0.0, 1.0)
+   GL.glVertex3f( 1.0, -1.0, -1.0)
+   GL.glTexCoord2f(0.0, 0.0)
+   GL.glVertex3f( 1.0, -1.0, 1.0)
+   GL.glTexCoord2f(1.0, 0.0)
+   GL.glVertex3f(-1.0, -1.0, 1.0)
+   GL.glTexCoord2f(1.0, 0.0)
+   GL.glVertex3f( 1.0, -1.0, -1.0)
+   GL.glTexCoord2f(1.0, 1.0)
+   GL.glVertex3f( 1.0, 1.0, -1.0)
+   GL.glTexCoord2f(0.0, 1.0)
+   GL.glVertex3f( 1.0, 1.0, 1.0)
+   GL.glTexCoord2f(0.0, 0.0)
+   GL.glVertex3f( 1.0, -1.0, 1.0)
+   GL.glTexCoord2f(0.0, 0.0)
+   GL.glVertex3f(-1.0, -1.0, -1.0)
+   GL.glTexCoord2f(1.0, 0.0)
+   GL.glVertex3f(-1.0, -1.0, 1.0)
+   GL.glTexCoord2f(1.0, 1.0)
+   GL.glVertex3f(-1.0, 1.0, 1.0)
+   GL.glTexCoord2f(0.0, 1.0)
+   GL.glVertex3f(-1.0, 1.0, -1.0)
+   GL.glEnd()
+   GL.glEnable( GL.GL_LIGHTING)
+   
+   GL.glDisable(GL.GL_TEXTURE_2D) 
+   
+   
+   GL.glPopMatrix()
+   
    GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, [1, 1, 1, 0])
    
    GL.glScalef(1000, 100, 1000)
@@ -161,7 +233,7 @@ def draw():
    GL.glEnableClientState(GL.GL_NORMAL_ARRAY);
    GL.glNormalPointer(GL.GL_FLOAT, 0, None);
    
-   GL.glColor4f(1,0,1,1)
+   #GL.glColor4f(1,1,1,1)
    if useVBO:
        GL.glDrawElements(GL.GL_TRIANGLES, numtris*3, GL.GL_UNSIGNED_INT, None)
    else:
@@ -206,7 +278,7 @@ print len(norms)
 
 def update():
     t0 = time.time()
-    go = np.array((orientation** -1) * np.matrix([[0], [0], [.01]])).flatten()
+    go = np.array((orientation** -1) * np.matrix([[0], [0], [.05]])).flatten()
     
     position[0] += go[0] 
     position[1] += go[1]
