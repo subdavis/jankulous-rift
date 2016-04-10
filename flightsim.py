@@ -12,6 +12,7 @@ import sys
 
 import numpy as np
 import scipy.linalg
+import scipy.interpolate
 
 import operator
 import ctypes
@@ -20,7 +21,15 @@ import time
 print "type y to use VBO, n to use immediate rendering"
 
 from PIL import Image
+GLUT.glutInit(sys.argv)
 
+GLUT.glutInitWindowSize(1512,800)
+
+
+GLUT.glutCreateWindow("BUNNY")
+
+
+GLUT.glutInitDisplayMode(GLUT.GLUT_RGBA)
 def mulmat3(m):
    GL.glMultMatrixf([m[0, 0], m[1, 0], m[2, 0], 0, 
                    m[0, 1], m[1, 1], m[2, 1], 0, 
@@ -32,23 +41,64 @@ useVBO = True
 position = [0.1, -27, -1.5]
  
 orientation = np.matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype = np.float)
+rotator = np.matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype = np.float)
+#load terrain for collisions
+DIM = 500
+heightmap = Image.open("terrainmesh/gc_dem.tif")
+
+heightmap = np.array(heightmap, dtype = np.float)
+
+heightmap = heightmap[1500:3500:4,500:2500:4] / 10000
+
+
+x = np.linspace(-.2, .2, DIM)
+z = np.linspace(-.2, .2, DIM)
+#x, z = np.meshgrid(x, z)
+
+x = x * 1000
+z = z * 1000
+heightmap = heightmap * 100
+
+heightfunc = scipy.interpolate.RectBivariateSpline(x, z, heightmap, kx = 1, ky = 1)
+
 
 #load skybox
 
 
 im = Image.open("skyboxsun5deg.png")
+
+print im
 try: 
     ix, iy, image = im.size[0], im.size[1], im.tostring("raw", "RGBA", 0, -1) 
 except SystemError: 
-    ix, iy, image = im.size[0], im.size[1], im.tostring("raw", "RGBX", 0, -1)
+    print "whoops"
+    ix, iy, image = im.size[0], im.size[1], im.tobytes("raw", "RGBX", 0, -1)
+
 
 
 skytexID = GL.glGenTextures(1)
 
 GL.glBindTexture(GL.GL_TEXTURE_2D, skytexID) 
+GL.glTexEnvf( GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE );
+
+GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
+GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
+
 GL.glPixelStorei(GL.GL_UNPACK_ALIGNMENT,1)
 
 GL.glTexImage2D( GL.GL_TEXTURE_2D, 0, 3, ix, iy, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, image)
+
+# position teapots
+teapots = []
+def makeTea():
+    global teapots
+    teapots = []
+    for _ in range(3):
+        x = 1000 * (np.random.rand() * .4 - .2)
+        z = 1000 * (np.random.rand() * .4 - .2)
+        y = heightfunc(x, z) + .5
+        teapots += [[x, y, z, False]]
+makeTea()
 
 
 
@@ -82,15 +132,7 @@ with open("terrainmesh/terrain.obj", "r") as file:
         
         
         
-GLUT.glutInit(sys.argv)
 
-GLUT.glutInitWindowSize(1512,800)
-
-
-GLUT.glutCreateWindow("BUNNY")
-
-
-GLUT.glutInitDisplayMode(GLUT.GLUT_RGBA)
 
 
 GL.glEnable(GL.GL_DEPTH_TEST)
@@ -147,7 +189,95 @@ def draw():
    
    GL.glTranslatef(position[0], position[1], position[2])
    
+   #draw sky
+   GL.glEnable(GL.GL_TEXTURE_2D) 
+   GL.glBindTexture(GL.GL_TEXTURE_2D, skytexID) 
+   #GL.glDisable( GL.GL_LIGHTING)
+   GL.glBlendFunc (GL.GL_SRC_ALPHA, GL.GL_ONE)
+   GL.glEnable(GL.GL_TEXTURE_2D) 
+   GL.glTexParameterf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST)
+   GL.glTexParameterf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST) 
+   GL.glTexEnvf(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_DECAL)
+   
+   
+   
+   d = 1000
+   
+   GL.glPushMatrix()
+   GL.glScalef(-500, 500, 500)
+   GL.glBegin(GL.GL_QUADS)
+   GL.glTexCoord2f(0.0, 0.0)
+   GL.glVertex3f(-1.0, -1.0, 1.0)
+   GL.glTexCoord2f(1.0, 0.0)
+   GL.glVertex3f( 1.0, -1.0, 1.0)
+   GL.glTexCoord2f(1.0, 1.0)
+   GL.glVertex3f( 1.0, 1.0, 1.0)
+   GL.glTexCoord2f(0.0, 1.0)
+   GL.glVertex3f(-1.0, 1.0, 1.0)
+   GL.glTexCoord2f(1.0, 0.0)
+   GL.glVertex3f(-1.0, -1.0, -1.0)
+   GL.glTexCoord2f(1.0, 1.0)
+   GL.glVertex3f(-1.0, 1.0, -1.0)
+   GL.glTexCoord2f(0.0, 1.0)
+   GL.glVertex3f( 1.0, 1.0, -1.0)
+   GL.glTexCoord2f(0.0, 0.0)
+   GL.glVertex3f( 1.0, -1.0, -1.0)
+   GL.glTexCoord2f(0.0, 1.0)
+   GL.glVertex3f(-1.0, 1.0, -1.0)
+   GL.glTexCoord2f(0.0, 0.0)
+   GL.glVertex3f(-1.0, 1.0, 1.0)
+   GL.glTexCoord2f(1.0, 0.0)
+   GL.glVertex3f( 1.0, 1.0, 1.0)
+   GL.glTexCoord2f(1.0, 1.0)
+   GL.glVertex3f( 1.0, 1.0, -1.0)
+   GL.glTexCoord2f(1.0, 1.0)
+   GL.glVertex3f(-1.0, -1.0, -1.0)
+   GL.glTexCoord2f(0.0, 1.0)
+   GL.glVertex3f( 1.0, -1.0, -1.0)
+   GL.glTexCoord2f(0.0, 0.0)
+   GL.glVertex3f( 1.0, -1.0, 1.0)
+   GL.glTexCoord2f(1.0, 0.0)
+   GL.glVertex3f(-1.0, -1.0, 1.0)
+   GL.glTexCoord2f(1.0, 0.0)
+   GL.glVertex3f( 1.0, -1.0, -1.0)
+   GL.glTexCoord2f(1.0, 1.0)
+   GL.glVertex3f( 1.0, 1.0, -1.0)
+   GL.glTexCoord2f(0.0, 1.0)
+   GL.glVertex3f( 1.0, 1.0, 1.0)
+   GL.glTexCoord2f(0.0, 0.0)
+   GL.glVertex3f( 1.0, -1.0, 1.0)
+   GL.glTexCoord2f(0.0, 0.0)
+   GL.glVertex3f(-1.0, -1.0, -1.0)
+   GL.glTexCoord2f(1.0, 0.0)
+   GL.glVertex3f(-1.0, -1.0, 1.0)
+   GL.glTexCoord2f(1.0, 1.0)
+   GL.glVertex3f(-1.0, 1.0, 1.0)
+   GL.glTexCoord2f(0.0, 1.0)
+   GL.glVertex3f(-1.0, 1.0, -1.0)
+   GL.glEnd()
+   GL.glEnable( GL.GL_LIGHTING)
+   
+   GL.glDisable(GL.GL_TEXTURE_2D) 
+   
+   
+   GL.glPopMatrix()
+   
    GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, [1, 1, 1, 0])
+   
+   
+   for pot in teapots:
+       
+       GL.glPushMatrix()
+       
+       if pot[3]: #teapot is found
+           GL.glMaterialfv(GL.GL_FRONT_AND_BACK,  GL.GL_AMBIENT,  [0, 1, 0, 1])
+           GL.glTranslatef(pot[0], pot[1] + 5, pot[2])
+           GLUT.glutSolidCube(5)
+       else:
+           GL.glMaterialfv(GL.GL_FRONT_AND_BACK,  GL.GL_AMBIENT,  [1, 0, 1, 1])
+           GL.glTranslatef(pot[0], pot[1], pot[2])
+           GLUT.glutSolidCube(1)
+       GL.glPopMatrix()
    
    GL.glScalef(1000, 100, 1000)
    GL.glEnableClientState(GL.GL_VERTEX_ARRAY);
@@ -161,7 +291,7 @@ def draw():
    GL.glEnableClientState(GL.GL_NORMAL_ARRAY);
    GL.glNormalPointer(GL.GL_FLOAT, 0, None);
    
-   GL.glColor4f(1,0,1,1)
+   GL.glMaterialfv(GL.GL_FRONT_AND_BACK,  GL.GL_AMBIENT,  [.8, .8, .8, 1])
    if useVBO:
        GL.glDrawElements(GL.GL_TRIANGLES, numtris*3, GL.GL_UNSIGNED_INT, None)
    else:
@@ -205,23 +335,41 @@ GLUT.glutDisplayFunc(draw)
 print len(norms)
 
 def update():
+    global position, orientation
     t0 = time.time()
-    go = np.array((orientation** -1) * np.matrix([[0], [0], [.01]])).flatten()
+    orientation = (rotator**-1) * orientation
+    go = np.array((orientation** -1) * np.matrix([[0], [0], [.2]])).flatten()
     
     position[0] += go[0] 
     position[1] += go[1]
     position[2] += go[2]
     draw()
     t1 = time.time()
+    if heightfunc(-position[2], -position[0]) > -position[1]:
+        print("dead")
+        time.sleep(5)
+        position = [0.1, -27, -1.5]
+        makeTea()
+ 
+        orientation = np.matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype = np.float)
+    for i, pot in enumerate(teapots):
+        if ((pot[0] + position[0])**2 + (pot[1] + position[1])**2 
+            + (pot[2] + position[2])**2 < 1.5):
+            teapots[i][3] = True
+        
+        
+        
+    #print position
     GLUT.glutSetWindowTitle(str(1 / (t1 - t0)))
     
     
 def stdinControl():
     global orientation
+    global rotator
     while True:
         try:
             inp = raw_input()
-            print "recieved " + inp
+            #print "recieved " + inp
             if all(map(float, inp.split())):
                 array = np.array(map(float, inp.split()))
                 array = array.reshape(3, 3).transpose()
@@ -230,13 +378,14 @@ def stdinControl():
                                    [0,  1, 0],
                                    [0,  0, 1]])
                                   
-                print np.linalg.det(matr)
-                if abs(np.linalg.det(matr) - 1)  <.01:
-                    orientation = scipy.linalg.fractional_matrix_power(matr, -.05) * orientation
-                print matr
+                #print np.linalg.det(matr)
+                if abs(np.linalg.det(matr) - 1)  <.09 or abs(np.linalg.det(matr) + 1)  <.09:
+                    rotator =  matr
+                #print matr
                 
         except Exception as e:
             print "error reading: ", e
+            print inp
         
 t = Thread(target = stdinControl)
 t.start()
