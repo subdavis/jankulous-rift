@@ -268,8 +268,8 @@ void init(std::string path) {
      * 
      */
      
-    GLfloat Ia[] = { .2, .2, .2, 1 };
-    GLfloat light_pos[] = { 1, 1, 1, 0 };
+    GLfloat Ia[] = { .2, .2, .2, 0};
+    GLfloat light_pos[] = { 1, 10, 0, 0 };
     GLfloat la[] = {0,0,0}; //ambient
     GLfloat ld[] = {1,1,1}; //diffuse
     GLfloat ls[] = {0,0,0}; //sepcular
@@ -309,7 +309,7 @@ void transformSetup() {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0);
-    glTranslatef(0,-1,-2);
+    glTranslatef(0,-1,-1.5);
     glScalef(10.0,10.0,10.0);
     glMultMatrixf(rotation_m);
 
