@@ -93,10 +93,10 @@ teapots = []
 def makeTea():
     global teapots
     teapots = []
-    for _ in range(3):
+    for _ in range(6):
         x = 1000 * (np.random.rand() * .4 - .2)
         z = 1000 * (np.random.rand() * .4 - .2)
-        y = heightfunc(x, z) + .5
+        y = heightfunc(z, x) + 2
         teapots += [[x, y, z, False]]
 makeTea()
 
@@ -276,7 +276,7 @@ def draw():
        else:
            GL.glMaterialfv(GL.GL_FRONT_AND_BACK,  GL.GL_AMBIENT,  [1, 0, 1, 1])
            GL.glTranslatef(pot[0], pot[1], pot[2])
-           GLUT.glutSolidCube(1)
+           GLUT.glutSolidCube(2)
        GL.glPopMatrix()
    
    GL.glScalef(1000, 100, 1000)
@@ -354,7 +354,7 @@ def update():
         orientation = np.matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype = np.float)
     for i, pot in enumerate(teapots):
         if ((pot[0] + position[0])**2 + (pot[1] + position[1])**2 
-            + (pot[2] + position[2])**2 < 1.5):
+            + (pot[2] + position[2])**2 < 3):
             teapots[i][3] = True
         
         
