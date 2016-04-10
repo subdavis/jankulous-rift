@@ -20,7 +20,15 @@ import time
 print "type y to use VBO, n to use immediate rendering"
 
 from PIL import Image
+GLUT.glutInit(sys.argv)
 
+GLUT.glutInitWindowSize(1512,800)
+
+
+GLUT.glutCreateWindow("BUNNY")
+
+
+GLUT.glutInitDisplayMode(GLUT.GLUT_RGBA)
 def mulmat3(m):
    GL.glMultMatrixf([m[0, 0], m[1, 0], m[2, 0], 0, 
                    m[0, 1], m[1, 1], m[2, 1], 0, 
@@ -50,6 +58,11 @@ except SystemError:
 skytexID = GL.glGenTextures(1)
 
 GL.glBindTexture(GL.GL_TEXTURE_2D, skytexID) 
+GL.glTexEnvf( GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE );
+
+GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
+GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
+
 GL.glPixelStorei(GL.GL_UNPACK_ALIGNMENT,1)
 
 GL.glTexImage2D( GL.GL_TEXTURE_2D, 0, 3, ix, iy, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, image)
@@ -84,15 +97,7 @@ with open("terrainmesh/terrain.obj", "r") as file:
         
         
         
-GLUT.glutInit(sys.argv)
 
-GLUT.glutInitWindowSize(1512,800)
-
-
-GLUT.glutCreateWindow("BUNNY")
-
-
-GLUT.glutInitDisplayMode(GLUT.GLUT_RGBA)
 
 
 GL.glEnable(GL.GL_DEPTH_TEST)
@@ -217,7 +222,7 @@ def draw():
    GL.glEnd()
    GL.glEnable( GL.GL_LIGHTING)
    
-   #GL.glDisable(GL.GL_TEXTURE_2D) 
+   GL.glDisable(GL.GL_TEXTURE_2D) 
    
    
    GL.glPopMatrix()
@@ -307,7 +312,7 @@ def stdinControl():
                                   
                 print np.linalg.det(matr)
                 if abs(np.linalg.det(matr) - 1)  <.09 or abs(np.linalg.det(matr) + 1)  <.09:
-                    orientation = scipy.linalg.fractional_matrix_power(matr, -.15) * orientation
+                    orientation = scipy.linalg.fractional_matrix_power(matr, -.07) * orientation
                 print matr
                 
         except Exception as e:
