@@ -41,13 +41,14 @@ useVBO = True
 position = [0.1, -27, -1.5]
  
 orientation = np.matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype = np.float)
+rotator = np.matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype = np.float)
 #load terrain for collisions
-DIM = 1000
+DIM = 500
 heightmap = Image.open("terrainmesh/gc_dem.tif")
 
 heightmap = np.array(heightmap, dtype = np.float)
 
-heightmap = heightmap[1500:3500:2,500:2500:2] / 10000
+heightmap = heightmap[1500:3500:4,500:2500:4] / 10000
 
 
 x = np.linspace(-.2, .2, DIM)
@@ -86,6 +87,20 @@ GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
 GL.glPixelStorei(GL.GL_UNPACK_ALIGNMENT,1)
 
 GL.glTexImage2D( GL.GL_TEXTURE_2D, 0, 3, ix, iy, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, image)
+
+# position teapots
+teapots = []
+def makeTea():
+    global teapots
+    teapots = []
+    for _ in range(3):
+        x = 1000 * (np.random.rand() * .4 - .2)
+        z = 1000 * (np.random.rand() * .4 - .2)
+        y = heightfunc(x, z) + .5
+        teapots += [[x, y, z, False]]
+makeTea()
+
+
 
 
 #load terrain
@@ -249,6 +264,21 @@ def draw():
    
    GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, [1, 1, 1, 0])
    
+   
+   for pot in teapots:
+       
+       GL.glPushMatrix()
+       
+       if pot[3]: #teapot is found
+           GL.glMaterialfv(GL.GL_FRONT_AND_BACK,  GL.GL_AMBIENT,  [0, 1, 0, 1])
+           GL.glTranslatef(pot[0], pot[1] + 5, pot[2])
+           GLUT.glutSolidCube(5)
+       else:
+           GL.glMaterialfv(GL.GL_FRONT_AND_BACK,  GL.GL_AMBIENT,  [1, 0, 1, 1])
+           GL.glTranslatef(pot[0], pot[1], pot[2])
+           GLUT.glutSolidCube(1)
+       GL.glPopMatrix()
+   
    GL.glScalef(1000, 100, 1000)
    GL.glEnableClientState(GL.GL_VERTEX_ARRAY);
    vertexVBO.bind()
@@ -261,7 +291,7 @@ def draw():
    GL.glEnableClientState(GL.GL_NORMAL_ARRAY);
    GL.glNormalPointer(GL.GL_FLOAT, 0, None);
    
-   #GL.glColor4f(1,1,1,1)
+   GL.glMaterialfv(GL.GL_FRONT_AND_BACK,  GL.GL_AMBIENT,  [.8, .8, .8, 1])
    if useVBO:
        GL.glDrawElements(GL.GL_TRIANGLES, numtris*3, GL.GL_UNSIGNED_INT, None)
    else:
@@ -307,7 +337,8 @@ print len(norms)
 def update():
     global position, orientation
     t0 = time.time()
-    go = np.array((orientation** -1) * np.matrix([[0], [0], [.3]])).flatten()
+    orientation = (rotator**-1) * orientation
+    go = np.array((orientation** -1) * np.matrix([[0], [0], [.2]])).flatten()
     
     position[0] += go[0] 
     position[1] += go[1]
@@ -318,8 +349,14 @@ def update():
         print("dead")
         time.sleep(5)
         position = [0.1, -27, -1.5]
+        makeTea()
  
         orientation = np.matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype = np.float)
+    for i, pot in enumerate(teapots):
+        if ((pot[0] + position[0])**2 + (pot[1] + position[1])**2 
+            + (pot[2] + position[2])**2 < 1.5):
+            teapots[i][3] = True
+        
         
         
     #print position
@@ -328,6 +365,7 @@ def update():
     
 def stdinControl():
     global orientation
+    global rotator
     while True:
         try:
             inp = raw_input()
@@ -342,11 +380,12 @@ def stdinControl():
                                   
                 #print np.linalg.det(matr)
                 if abs(np.linalg.det(matr) - 1)  <.09 or abs(np.linalg.det(matr) + 1)  <.09:
-                    orientation = scipy.linalg.fractional_matrix_power(matr, -.07) * orientation
+                    rotator =  matr
                 #print matr
                 
         except Exception as e:
             print "error reading: ", e
+            print inp
         
 t = Thread(target = stdinControl)
 t.start()
