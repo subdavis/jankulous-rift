@@ -269,7 +269,7 @@ void init(std::string path) {
      */
      
     GLfloat Ia[] = { .2, .2, .2, 0};
-    GLfloat light_pos[] = { 0, 2, 0, 1 };
+    GLfloat light_pos[] = { 1, 10, 0, 0 };
     GLfloat la[] = {0,0,0}; //ambient
     GLfloat ld[] = {1,1,1}; //diffuse
     GLfloat ls[] = {0,0,0}; //sepcular
@@ -286,9 +286,9 @@ void init(std::string path) {
      * 
      */
 
-    GLfloat ka[] = { .8, .8, .8}; //ambient
-    GLfloat kd[] = { .5, .5, .5}; //specular
-    GLfloat ks[] = { .2, .2, .2}; //diffuse
+    GLfloat ka[] = { 1, 1, 1}; //ambient
+    GLfloat kd[] = { 1, 1, 1}; //specular
+    GLfloat ks[] = { 0, 0, 0}; //diffuse
     GLfloat p = 0;
 
     glMaterialfv(GL_FRONT, GL_AMBIENT, ka);
