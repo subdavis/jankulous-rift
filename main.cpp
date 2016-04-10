@@ -34,6 +34,7 @@ using namespace std;
 
 int width;
 float *rotation_m;
+int counter;
 
 struct v2{
    int x, y;
@@ -44,11 +45,16 @@ struct v3 {
 };
 
 v2 *red;
+// v2 **red;
 v2 *green;
+// v2 **green;
 v2 *blue;
+// v2 **blue;
 v2 *orange;
 v2 *midp;
 v2 *lastmid;
+
+int average_over = 4;
 
 //Diffs
 v2* yz_midpoint;// the height of purple from midpoint.
@@ -59,7 +65,7 @@ v2* xy_midpoint;// hight diff of red from midpoint.
 int red_range[] = {170, 179, 150, 255, 60, 255}; 
 int green_range[] = {69, 98, 120, 255, 62, 180};
 int blue_range[] = {118, 138, 124, 255, 81, 228};
-int orange_range[] = {0, 23, 117, 255, 161, 255};
+int orange_range[] = {5, 23, 117, 255, 161, 255};
 
 Mat imgTmp;
 Mat imgLines;
@@ -105,11 +111,12 @@ int main(int argc, char **argv) {
     /*
      * Initialize the GUI Window
      */
+    counter = 0;
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowPosition(50, 100);
-    glutInitWindowSize(1500, 800);
+    glutInitWindowSize(1024, 1024);
     glutCreateWindow("Bunny");
         
     if (argc == 3){
@@ -301,10 +308,10 @@ void transformSetup() {
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(0.0,0.0,0.0,0.0,0.0,-1.0,0.0,1.0,0.0);
-    glTranslatef(0.1,-1.0,-1.5);
+    gluLookAt(0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0);
+    glTranslatef(0,-1,-2);
     glScalef(10.0,10.0,10.0);
-    glMultMatrixf( rotation_m);
+    glMultMatrixf(rotation_m);
 
     /*
      * Set up Projection Transform
@@ -313,7 +320,7 @@ void transformSetup() {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glFrustum(-.1, .1, -.1, .1, .1, 1000);
-    glViewport(0, 0, 512, 512);
+    glViewport(0, 0, 1024, 1024);
 }
 void drawRoom(){
 
@@ -391,6 +398,7 @@ void draw() {
     trackColor( imgLines, red_range, green_range, blue_range, orange_range);
     pose();
     transformSetup();
+    counter++;
 
     //Do the draw
     drawRoom();
@@ -578,9 +586,9 @@ int pose(){
   std::vector<CvPoint3D32f> modelPoints;
   modelPoints.push_back(cvPoint3D32f(0.0f, 0.0f, 0.0f));
   modelPoints.push_back(cvPoint3D32f(0.0f, 550.0f, 0.0f));
-  modelPoints.push_back(cvPoint3D32f(-500.0f, 0.0f, 0.0f)); //red
-  modelPoints.push_back(cvPoint3D32f(500.0f, 0.0f, 0.0f)); //green
-  modelPoints.push_back(cvPoint3D32f(0.0f, 0.0f, 800.0f));
+  modelPoints.push_back(cvPoint3D32f(500.0f, 0.0f, 0.0f)); //red
+  modelPoints.push_back(cvPoint3D32f(-500.0f, 0.0f, 0.0f)); //green
+  modelPoints.push_back(cvPoint3D32f(0.0f, 0.0f, -800.0f));
   CvPOSITObject *positObject = cvCreatePOSITObject( &modelPoints[0], static_cast<int>(modelPoints.size()) );
   
   //Shoudl be with respect to 0,0 in screen coordinates in the middle
@@ -602,23 +610,30 @@ int pose(){
       << rotation_matrix[3] << " " << rotation_matrix[4] << " " << rotation_matrix[5]<< " "
       << rotation_matrix[6] << " " << rotation_matrix[7] << " " << rotation_matrix[8] << std::endl;
   // std::cout << red->x << " " << red->y << std::endl;
-
-  rotation_m[0] = rotation_matrix[0] ;
-  rotation_m[1] = rotation_matrix[1];
-  rotation_m[2] = rotation_matrix[2];
-  rotation_m[3] = 1;
-  rotation_m[4] = rotation_matrix[3];
-  rotation_m[5] = rotation_matrix[4];
-  rotation_m[6] = rotation_matrix[5];
-  rotation_m[7] = 1;
-  rotation_m[8] = rotation_matrix[6];
-  rotation_m[9] = rotation_matrix[7];
-  rotation_m[10] = rotation_matrix[8];
-  rotation_m[11] = 1;
-  rotation_m[12] = 1;
-  rotation_m[13] = 1;
-  rotation_m[14] = 1;
-  rotation_m[15] = 1;
+  bool valid = true;
+  for (int i = 0; i < 9; i++){
+    if(rotation_matrix[i] > -0.00001 && rotation_matrix[i] < 0.00001){
+      valid = false;
+    }
+  }
+  if (valid) {
+      rotation_m[0] = rotation_matrix[0];
+      rotation_m[1] = rotation_matrix[1];
+      rotation_m[2] = rotation_matrix[2];
+      rotation_m[3] = 0;
+      rotation_m[4] = rotation_matrix[3];
+      rotation_m[5] = rotation_matrix[4];
+      rotation_m[6] = rotation_matrix[5];
+      rotation_m[7] = 0;
+      rotation_m[8] = rotation_matrix[6];
+      rotation_m[9] = rotation_matrix[7];
+      rotation_m[10] = rotation_matrix[8];
+      rotation_m[11] = 0;
+      rotation_m[12] = 0;
+      rotation_m[13] = 0;
+      rotation_m[14] = 0;
+      rotation_m[15] = 1;
+    }
   return 0;
 }
 
@@ -651,8 +666,12 @@ int getCoords(Mat imgHSV, v2 *color, int* range){
     color->x = posX;
     color->y = posY; 
   } else {
-    color->x = 0;
-    color->y = 0;
+    // color->x = 0;
+    // color->y = 0;
+    // dot not found.
+    // assume dot is in the same spot as purple
+    color->x = blue->x;
+    color->y = blue->y;
   }
   // imshow("Thresholded Image", imgThresholded); //show the thresholded image
   return 0;

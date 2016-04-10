@@ -107,6 +107,10 @@ int getCoords(Mat imgHSV, v2 *color, int* range){
   } else {
     color->x = 0;
     color->y = 0;
+    // dot not found.
+    // assume dot is in the same spot as purple
+    color->x = blue->x;
+    color->y = blue->y;
   }
   // imshow("Thresholded Image", imgThresholded); //show the thresholded image
   return 0;
@@ -191,7 +195,7 @@ int main( int argc, char** argv ){
   int red_range[] = {170, 179, 150, 255, 60, 255}; 
   int green_range[] = {70, 98, 150, 255, 62, 180};
   int blue_range[] = {118, 138, 124, 255, 81, 228};
-  int orange_range[] = {0, 23, 156, 255, 194, 255};
+  int orange_range[] = {5, 23, 156, 255, 194, 255};
 
   //Capture a temporary image from the camera
   Mat imgTmp;
