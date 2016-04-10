@@ -149,7 +149,7 @@ def draw():
    
    #draw sky
    GL.glBindTexture(GL.GL_TEXTURE_2D, skytexID) 
-   GL.glDisable( GL.GL_LIGHTING)
+   #GL.glDisable( GL.GL_LIGHTING)
    GL.glBlendFunc (GL.GL_SRC_ALPHA, GL.GL_ONE)
    GL.glEnable(GL.GL_TEXTURE_2D) 
    GL.glTexParameterf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST)
@@ -214,7 +214,7 @@ def draw():
    GL.glEnd()
    GL.glEnable( GL.GL_LIGHTING)
    
-   GL.glDisable(GL.GL_TEXTURE_2D) 
+   #GL.glDisable(GL.GL_TEXTURE_2D) 
    
    
    GL.glPopMatrix()
@@ -278,7 +278,7 @@ print len(norms)
 
 def update():
     t0 = time.time()
-    go = np.array((orientation** -1) * np.matrix([[0], [0], [.03]])).flatten()
+    go = np.array((orientation** -1) * np.matrix([[0], [0], [.3]])).flatten()
     
     position[0] += go[0] 
     position[1] += go[1]
