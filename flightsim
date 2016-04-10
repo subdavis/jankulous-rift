@@ -1,2 +1,2 @@
 #!/bin/bash
-tracking/tracking | python flightsim.py
+tracking/tracking | python -u terrainmesh/rubber.py | python flightsim.py 
