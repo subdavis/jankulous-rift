@@ -37,12 +37,14 @@ orientation = np.matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype = np.float)
 
 
 im = Image.open("skyboxsun5deg.png")
+
 print im
 try: 
     ix, iy, image = im.size[0], im.size[1], im.tostring("raw", "RGBA", 0, -1) 
 except SystemError: 
     print "whoops"
     ix, iy, image = im.size[0], im.size[1], im.tobytes("raw", "RGBX", 0, -1)
+
 
 
 skytexID = GL.glGenTextures(1)
