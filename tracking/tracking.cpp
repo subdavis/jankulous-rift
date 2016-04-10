@@ -44,6 +44,8 @@ v2* yz_midpoint;// the height of purple from midpoint.
 v2* xz_midpoint;// the left-right distance of purple from midpoint
 v2* xy_midpoint;// hight diff of red from midpoint.
 
+float *rotation_m;
+
 int pose(){
   // float wandSize s= 10;
   std::vector<CvPoint3D32f> modelPoints;
@@ -73,6 +75,34 @@ int pose(){
       << rotation_matrix[3] << " " << rotation_matrix[4] << " " << rotation_matrix[5]<< " "
       << rotation_matrix[6] << " " << rotation_matrix[7] << " " << rotation_matrix[8] << std::endl;
   // std::cout << red->x << " " << red->y << std::endl;
+  bool valid = true;
+  for (int i = 0; i < 9; i++){
+    if(rotation_matrix[i] > -0.00001 && rotation_matrix[i] < 0.00001){
+      valid = false;
+    }
+  }
+  if (valid) {
+      rotation_m[0] = rotation_matrix[0];
+      rotation_m[1] = rotation_matrix[1];
+      rotation_m[2] = rotation_matrix[2];
+      rotation_m[3] = 0;
+      rotation_m[4] = rotation_matrix[3];
+      rotation_m[5] = rotation_matrix[4];
+      rotation_m[6] = rotation_matrix[5];
+      rotation_m[7] = 0;
+      rotation_m[8] = rotation_matrix[6];
+      rotation_m[9] = rotation_matrix[7];
+      rotation_m[10] = rotation_matrix[8];
+      rotation_m[11] = 0;
+      rotation_m[12] = 0;
+      rotation_m[13] = 0;
+      rotation_m[14] = 0;
+      rotation_m[15] = 1;
+    } else {
+      // for (int i = 0; i < 12; i++){
+      //   rotation_m[i] = 0;
+      // }
+    }
   return 0;
 }
 
@@ -171,6 +201,7 @@ int trackColor(v2 *ret, Mat imgLines, VideoCapture cap, int *range_r, int *range
 }
 
 int main( int argc, char** argv ){
+  rotation_m = new float[16];
   red = new v2();
   green = new v2();
   blue = new v2();
@@ -193,9 +224,9 @@ int main( int argc, char** argv ){
 
   // lowH, highH, lowS, highS, lowV, HighV
   int red_range[] = {170, 179, 150, 255, 60, 255}; 
-  int green_range[] = {70, 98, 150, 255, 62, 180};
-  int blue_range[] = {118, 138, 124, 255, 81, 228};
-  int orange_range[] = {5, 23, 156, 255, 194, 255};
+  int green_range[] = {58, 104, 137, 234, 49, 154};
+  int blue_range[] = {121, 151, 149, 255, 81, 228};
+  int orange_range[] = {0, 20, 156, 255, 194, 255};
 
   //Capture a temporary image from the camera
   Mat imgTmp;
