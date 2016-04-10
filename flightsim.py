@@ -12,6 +12,7 @@ import sys
 
 import numpy as np
 import scipy.linalg
+import scipy.interpolate
 
 import operator
 import ctypes
@@ -40,6 +41,25 @@ useVBO = True
 position = [0.1, -27, -1.5]
  
 orientation = np.matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype = np.float)
+#load terrain for collisions
+DIM = 1000
+heightmap = Image.open("terrainmesh/gc_dem.tif")
+
+heightmap = np.array(heightmap, dtype = np.float)
+
+heightmap = heightmap[1500:3500:2,500:2500:2] / 10000
+
+
+x = np.linspace(-.2, .2, DIM)
+z = np.linspace(-.2, .2, DIM)
+#x, z = np.meshgrid(x, z)
+
+x = x * 1000
+z = z * 1000
+heightmap = heightmap * 100
+
+heightfunc = scipy.interpolate.RectBivariateSpline(x, z, heightmap, kx = 1, ky = 1)
+
 
 #load skybox
 
@@ -285,6 +305,7 @@ GLUT.glutDisplayFunc(draw)
 print len(norms)
 
 def update():
+    global position, orientation
     t0 = time.time()
     go = np.array((orientation** -1) * np.matrix([[0], [0], [.3]])).flatten()
     
@@ -293,6 +314,15 @@ def update():
     position[2] += go[2]
     draw()
     t1 = time.time()
+    if heightfunc(-position[2], -position[0]) > -position[1]:
+        print("dead")
+        time.sleep(5)
+        position = [0.1, -27, -1.5]
+ 
+        orientation = np.matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype = np.float)
+        
+        
+    #print position
     GLUT.glutSetWindowTitle(str(1 / (t1 - t0)))
     
     
@@ -301,7 +331,7 @@ def stdinControl():
     while True:
         try:
             inp = raw_input()
-            print "recieved " + inp
+            #print "recieved " + inp
             if all(map(float, inp.split())):
                 array = np.array(map(float, inp.split()))
                 array = array.reshape(3, 3).transpose()
@@ -310,10 +340,10 @@ def stdinControl():
                                    [0,  1, 0],
                                    [0,  0, 1]])
                                   
-                print np.linalg.det(matr)
+                #print np.linalg.det(matr)
                 if abs(np.linalg.det(matr) - 1)  <.09 or abs(np.linalg.det(matr) + 1)  <.09:
                     orientation = scipy.linalg.fractional_matrix_power(matr, -.07) * orientation
-                print matr
+                #print matr
                 
         except Exception as e:
             print "error reading: ", e
