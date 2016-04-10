@@ -278,7 +278,7 @@ print len(norms)
 
 def update():
     t0 = time.time()
-    go = np.array((orientation** -1) * np.matrix([[0], [0], [.05]])).flatten()
+    go = np.array((orientation** -1) * np.matrix([[0], [0], [.03]])).flatten()
     
     position[0] += go[0] 
     position[1] += go[1]
@@ -303,8 +303,8 @@ def stdinControl():
                                    [0,  0, 1]])
                                   
                 print np.linalg.det(matr)
-                if abs(np.linalg.det(matr) - 1)  <.01:
-                    orientation = scipy.linalg.fractional_matrix_power(matr, -.05) * orientation
+                if abs(np.linalg.det(matr) - 1)  <.09 or abs(np.linalg.det(matr) + 1)  <.09:
+                    orientation = scipy.linalg.fractional_matrix_power(matr, -.15) * orientation
                 print matr
                 
         except Exception as e:
