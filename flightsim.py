@@ -148,6 +148,7 @@ def draw():
    GL.glTranslatef(position[0], position[1], position[2])
    
    #draw sky
+   GL.glEnable(GL.GL_TEXTURE_2D) 
    GL.glBindTexture(GL.GL_TEXTURE_2D, skytexID) 
    #GL.glDisable( GL.GL_LIGHTING)
    GL.glBlendFunc (GL.GL_SRC_ALPHA, GL.GL_ONE)
