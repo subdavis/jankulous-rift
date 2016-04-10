@@ -9,7 +9,7 @@ def PrintException():
     linecache.checkcache(filename)
     line = linecache.getline(filename, lineno, f.f_globals)
     print 'EXCEPTION IN ({}, LINE {} "{}"): {}'.format(filename, lineno, line.strip(), exc_obj)
-SENSITIVITY = .03
+SENSITIVITY = .015
 while True:
     try:
         inp = raw_input()
@@ -18,9 +18,9 @@ while True:
             array = np.array(map(float, inp.split()))
             array = array.reshape(3, 3).transpose()
             matr = np.matrix(array)
-            thetax = SENSITIVITY * np.arctan2(matr[2, 1], matr[2, 2])
-            thetay = SENSITIVITY * np.arctan2(-matr[2, 0], np.sqrt(matr[2, 1] ** 2 
-                                                 + matr[2, 2] ** 2))
+            thetax = SENSITIVITY * (np.arctan2(matr[2, 1], matr[2, 2]) + .2)
+            thetay = SENSITIVITY * (np.arctan2(-matr[2, 0], np.sqrt(matr[2, 1] ** 2 
+                                                 + matr[2, 2] ** 2)) )
             thetaz = -SENSITIVITY * np.arctan2(matr[1, 0], matr[0, 0])
             
             X = np.matrix([[1, 0, 0],
