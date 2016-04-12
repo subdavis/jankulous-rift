@@ -96,7 +96,7 @@ def makeTea():
     for _ in range(6):
         x = 1000 * (np.random.rand() * .4 - .2)
         z = 1000 * (np.random.rand() * .4 - .2)
-        y = heightfunc(z, x) + 2
+        y = heightfunc(z, x) + 1
         teapots += [[x, y, z, False]]
 makeTea()
 
@@ -272,11 +272,11 @@ def draw():
        if pot[3]: #teapot is found
            GL.glMaterialfv(GL.GL_FRONT_AND_BACK,  GL.GL_AMBIENT,  [0, 1, 0, 1])
            GL.glTranslatef(pot[0], pot[1] + 5, pot[2])
-           GLUT.glutSolidCube(5)
+           GLUT.glutSolidTeapot(7)
        else:
            GL.glMaterialfv(GL.GL_FRONT_AND_BACK,  GL.GL_AMBIENT,  [1, 0, 1, 1])
            GL.glTranslatef(pot[0], pot[1], pot[2])
-           GLUT.glutSolidCube(2)
+           GLUT.glutSolidTeapot(3)
        GL.glPopMatrix()
    
    GL.glScalef(1000, 100, 1000)
@@ -315,7 +315,7 @@ def mousemoved(x, y):
     
     global orientation
     if x != 500 or y != 500:
-       xrot = (x-500.) / 1000
+       xrot = -(x-500.) / 1000
        yrot = (y - 500.) / 1000
       
        rotator = np.matrix([[np.cos(xrot), np.sin(xrot), 0],
@@ -354,7 +354,7 @@ def update():
         orientation = np.matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype = np.float)
     for i, pot in enumerate(teapots):
         if ((pot[0] + position[0])**2 + (pot[1] + position[1])**2 
-            + (pot[2] + position[2])**2 < 3):
+            + (pot[2] + position[2])**2 < 4):
             teapots[i][3] = True
         
         
