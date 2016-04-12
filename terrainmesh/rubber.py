@@ -18,7 +18,7 @@ while True:
             array = np.array(map(float, inp.split()))
             array = array.reshape(3, 3).transpose()
             matr = np.matrix(array)
-            thetax = SENSITIVITY * (np.arctan2(matr[2, 1], matr[2, 2]) + .2)
+            thetax = SENSITIVITY * (np.arctan2(matr[2, 1], matr[2, 2]) + .2)f
             thetay = SENSITIVITY * (np.arctan2(-matr[2, 0], np.sqrt(matr[2, 1] ** 2 
                                                  + matr[2, 2] ** 2)) )
             thetaz = -SENSITIVITY * np.arctan2(matr[1, 0], matr[0, 0])
