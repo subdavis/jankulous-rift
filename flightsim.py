@@ -18,9 +18,10 @@ import operator
 import ctypes
 
 import time
-print "type y to use VBO, n to use immediate rendering"
+print ("type y to use VBO, n to use immediate rendering")
 
 from PIL import Image
+import itk
 GLUT.glutInit(sys.argv)
 
 GLUT.glutInitWindowSize(1512,800)
@@ -44,7 +45,7 @@ orientation = np.matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype = np.float)
 rotator = np.matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype = np.float)
 #load terrain for collisions
 DIM = 500
-heightmap = Image.open("terrainmesh/gc_dem.tif")
+heightmap = itk.imread("terrainmesh/gc_dem.tif")
 
 heightmap = np.array(heightmap, dtype = np.float)
 
@@ -67,11 +68,11 @@ heightfunc = scipy.interpolate.RectBivariateSpline(x, z, heightmap, kx = 1, ky =
 
 im = Image.open("skyboxsun5deg.png")
 
-print im
+print (np.asarray(im).shape)
 try: 
-    ix, iy, image = im.size[0], im.size[1], im.tobytes("raw", "RGBA", 0, -1) 
+    ix, iy, image = im.size[0], im.size[1], np.asarray(im) 
 except SystemError: 
-    print "whoops"
+    print ("whoops")
     ix, iy, image = im.size[0], im.size[1], im.tobytes("raw", "RGBX", 0, -1)
 
 
@@ -86,7 +87,7 @@ GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
 
 GL.glPixelStorei(GL.GL_UNPACK_ALIGNMENT,1)
 
-GL.glTexImage2D( GL.GL_TEXTURE_2D, 0, 3, ix, iy, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, image)
+GL.glTexImage2D( GL.GL_TEXTURE_2D, 0, 3, ix, iy, 0, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, image)
 
 # position teapots
 teapots = []
@@ -106,7 +107,7 @@ makeTea()
 #load terrain
  
 def interpretLine(string):
-    return map(float, string.split()[1:])
+    return list(map(float, string.split()[1:]))
     
 with open("terrainmesh/terrain.obj", "r") as file:
     for _ in range(7):
@@ -149,7 +150,6 @@ GL.glEnable(GL.GL_NORMALIZE)
 
 #GL.glEnable(GL.GL_CULL_FACE)
 #GL.glCullFace(GL.GL_BACK)
-
 
 
 vertsa = np.array(verts, dtype=np.float32)
@@ -279,7 +279,7 @@ def draw():
            GLUT.glutSolidTeapot(3)
        GL.glPopMatrix()
    
-   GL.glScalef(1000, 100, 1000)
+   GL.glScalef(1000, 100, -1000)
    GL.glEnableClientState(GL.GL_VERTEX_ARRAY);
    vertexVBO.bind()
    # when GL_ARRAY_BUFFER is bound to vertex buffer
@@ -332,7 +332,7 @@ def mousemoved(x, y):
                             
 GLUT.glutPassiveMotionFunc(mousemoved)
 GLUT.glutDisplayFunc(draw)
-print len(norms)
+print (len(norms))
 
 def update():
     global position, orientation
@@ -384,8 +384,8 @@ def stdinControl():
                 #print matr
                 
         except Exception as e:
-            print "error reading: ", e
-            print inp
+            print ("error reading: ", e)
+            print (inp)
         
 t = Thread(target = stdinControl)
 t.start()
